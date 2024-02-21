@@ -4,52 +4,30 @@ const mongoose = require('mongoose')
 const bodyParser = require('body-parser')
 const User = require('./Models/User')
 const bcrypt = require('bcryptjs')
+const path = require('path')
+const exphbs  = require('express-handlebars') 
+
 
 // middleware
-app.use(bodyParser.json())
-app.use(bodyParser.urlencoded({extended : true}))
+// app.use(bodyParser.json())
+// app.use(bodyParser.urlencoded({extended : true}))
 
-mongoose.connect("mongodb://127.0.0.1/login")
+app.use(express.static(path.join(__dirname, 'public')))
 
-mongoose.connection.once('open', () => {
-    console.log("Connected to MongoDB");
-})
 
-app.post('/register', (req, res) => {
-    const newUser = new User();
-    newUser.email = req.body.email;
-    newUser.password = req.body.password;
+// set view engine
+app.engine('handlebars', exphbs.engine({defaultLayout: 'home'}))
+app.set('view engine', 'handlebars');
 
-    bcrypt.genSalt(10, (err, salt) => {
-        bcrypt.hash(newUser.password, salt, (err, hash) => {
-            if(err) return console.log("EEEEERRRRRRRRR");
-            newUser.password = hash;
-            newUser.save().then(userSaved => {
-                res.send("User is saved")
-        
-            }).catch(err => {
-                console.log("Encountered some error ", err)
-                 res.status(500).send("ERRROR --------", err)
-            })
-        })
-    })
-})
 
-app.post('/login', (req, res) => {
-    User.findOne({email : req.body.email}).then( user => {
-        if(user) {
-            bcrypt.compare(req.body.password, user.password, (err, matched) => {
-                if (err) return err;
-                    if (matched) {
-                        res.send("User is matched and logged in")
-                    }
-                    else {
-                        res.send("User is not logged in")
-                    }
-            })
-        }
-    })
-})
+//load routes
+const home = require('./routes/home/index')
+const admin = require('./routes/admin/index')
+
+//use routes
+app.use('/', home);
+app.use('/admin', admin);
+
 
 app.listen('4000', () => {
     console.log("Connected to server ")
