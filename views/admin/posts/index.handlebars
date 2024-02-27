@@ -1,9 +1,18 @@
 <h1>All Posts</h1>
 
+{{#if success_msg}}
+  
+ <div class="alert alert-success">
+   {{success_msg}}
+ </div>
+
+{{/if}}
+
 <table class="table table-bordered">
   <thead>
     <tr>
       <th>Id</th>
+      <th>Files</th>
       <th>Title</th>
       <th>Status</th>
       <th>Allow Comments</th>
@@ -15,6 +24,7 @@
     {{#each posts}}
       <tr>
         <td>{{_id}}</td>
+        <td><img src="/uploads/{{file}}" alt="abc" height="50" class="img-responsive"></td>
         <td>{{title}}</td>
         <td>{{status}}</td>
         <td>{{allowComments}}</td>
