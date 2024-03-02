@@ -25,12 +25,12 @@ mongoose
 
 app.use(express.static(path.join(__dirname, "public")));
 
-const { select } = require("./helpers/handlebars-helpers");
+const { select, generateDate } = require("./helpers/handlebars-helpers");
 
 // set view engine
 app.engine(
   "handlebars",
-  exphbs.engine({ defaultLayout: "home", helpers: { select: select } })
+  exphbs.engine({ defaultLayout: "home", helpers: { select: select, generateDate: generateDate } })
 );
 app.set("view engine", "handlebars");
 
@@ -44,8 +44,6 @@ app.use(upload());
 //method override
 app.use(methodOverride("_method"));
 
-
-
 app.use(
   session({
     secret: "sneha",
@@ -56,24 +54,26 @@ app.use(
 
 app.use(flash());
 
-// local var using middleware
-app.use(function(req, res, next) {
-    res.locals.success_msg = req.flash('success_msg');
-    res.locals.error_msg = req.flash('error-msg');
-    res.locals.error = req.flash('error');
-    res.locals.user = req.user || null;
-    next();
-})
+// local variables using middleware
+app.use(function (req, res, next) {
+  res.locals.success_msg = req.flash("success_msg");
+  res.locals.error_msg = req.flash("error_msg");
+  res.locals.error = req.flash("error");
+  res.locals.user = req.user || null;
+  next();
+});
 
 //load routes
 const home = require("./routes/home/index");
 const admin = require("./routes/admin/index");
 const posts = require("./routes/admin/posts");
+const categories = require('./routes/admin/categories') 
 
 //use routes
 app.use("/", home);
 app.use("/admin", admin);
 app.use("/admin/posts", posts);
+app.use("/admin/categories", categories);
 
 app.listen("4000", () => {
   console.log("Connected to server ");

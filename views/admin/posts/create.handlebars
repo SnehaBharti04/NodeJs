@@ -2,12 +2,12 @@
 
 {{#each errors}}
 
-     <div class="alert alert-danger">
-          {{ message }}
+  <div class="alert alert-danger">
+    {{message}}
 
-     </div>
+  </div>
 
-    {{/each}}
+{{/each}}
 <form action="/admin/posts/create" method="post" enctype="multipart/form-data">
 
   <div class="form-group">
@@ -21,14 +21,15 @@
     />
   </div>
 
+
   <div class="form-group">
     <label for="file">Upload</label>
     <input
       name="file"
       type="file"
       class="form-control"
-      {{!-- id="title"
-      placeholder="Upload" --}}
+      {{! id="title"
+      placeholder="Upload" }}
       required
     />
   </div>
@@ -55,6 +56,18 @@
   </div>
 
   <div class="form-group">
+    <label for="title">Date</label>
+    <input
+      name="date"
+      type="text"
+      class="form-control"
+      id="date"
+      placeholder="Enter date"
+    />
+  </div>
+  
+
+  <div class="form-group">
     <label for="body">Description</label>
     <textarea
       name="body"
@@ -64,10 +77,10 @@
       class="form-control"
       id="body"
       placeholder="Enter Description"
-      {{!-- required --}}
+      {{! required }}
     ></textarea>
   </div>
 
-  <button type="submit" class="btn btn-primary">Submit</button>
+  <button type="submit" class="btn btn-primary">Create Post</button>
 
 </form>
