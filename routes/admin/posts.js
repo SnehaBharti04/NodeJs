@@ -1,6 +1,7 @@
 const express = require("express");
 const router = express.Router();
 const Post = require("../../models/Post");
+const Category = require("../../models/Category");
 const { isEmpty, uploadDir } = require("../../helpers/upload-helper");
 const fs = require("fs");
 const path = require("path");
@@ -14,19 +15,20 @@ router.all("/*", (req, res, next) => {
 
 router.get("/", (req, res) => {
   Post.find({})
+    .populate('category')
     .lean()
     .then((posts) => {
       res.render("admin/posts", { posts: posts });
     });
 });
 
-
-
 router.get("/create", (req, res) => {
-  res.render("admin/posts/create");
+  Category.find({})
+    .lean()
+    .then((categories) => {
+      res.render("admin/posts/create", { categories: categories });
+    });
 });
-
-
 
 router.post("/create", (req, res) => {
   let errors = [];
@@ -66,31 +68,39 @@ router.post("/create", (req, res) => {
       status: req.body.status,
       allowComments: allowComments,
       body: req.body.body,
+      category: req.body.category,
       file: filename,
     });
 
-    newPost.save().then((savedPost) => {
-        req.flash("success_msg",`Post ${savedPost.title} is Created successfully`);
-            res.redirect("/admin/posts");
-        })
-        .catch((err) => {
-          console.log("could not save", err);
-        });
-    }
-  });
-
-
+    newPost
+      .save()
+      .then((savedPost) => {
+        req.flash(
+          "success_msg",
+          `Post ${savedPost.title} is Created successfully`
+        );
+        res.redirect("/admin/posts");
+      })
+      .catch((err) => {
+        console.log("could not save", err);
+      });
+  }
+});
 
 router.get("/edit/:id", (req, res) => {
   Post.findOne({ _id: req.params.id })
     .lean()
     .then((post) => {
-      res.render("admin/posts/edit", { post: post });
+      Category.find({})
+        .lean()
+        .then((categories) => {
+          res.render("admin/posts/edit", {
+            post: post,
+            categories: categories,
+          });
+        });
     });
 });
-
-
-
 
 router.put("/edit/:id", (req, res) => {
   Post.findOne({ _id: req.params.id })
@@ -103,8 +113,9 @@ router.put("/edit/:id", (req, res) => {
       // Update post fields
       post.title = req.body.title;
       post.status = req.body.status;
-      post.allowComments = req.body.allowComments === 'on'; // Convert to boolean
+      post.allowComments = req.body.allowComments === "on"; // Convert to boolean
       post.body = req.body.body;
+      post.category = req.body.category;
 
       let filename = "Screenshot (22).png";
 
@@ -134,10 +145,6 @@ router.put("/edit/:id", (req, res) => {
     });
 });
 
-
-
-
-
 router.delete("/:id", (req, res) => {
   Post.findByIdAndDelete(req.params.id)
     .then((post) => {
@@ -157,7 +164,5 @@ router.delete("/:id", (req, res) => {
       res.status(500).send("Internal Server Error");
     });
 });
-
-
 
 module.exports = router;

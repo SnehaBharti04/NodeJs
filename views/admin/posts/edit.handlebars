@@ -12,13 +12,13 @@
   </div>
 
 <div class="form-group">
-    <label for="status">Status</label>
-    <select name="status" id="status" class="form-control">
-     {{#select post.status}} 
-        <option value="public">Public</option>
-        <option value="private">Private</option>
-        <option value="draft">Draft</option>
-       {{/select}}
+    <label for="status">Category</label>
+    <select name="category" id="status" class="form-control">
+
+       {{#each categories}}
+         <option value="{{id}}">{{name}}</option>
+
+       {{/each}}
 
     </select>
    </div>
