@@ -2,19 +2,18 @@ const express = require("express");
 const app = express();
 const mongoose = require("mongoose");
 const bodyParser = require("body-parser");
-const User = require("./Models/User");
-const bcrypt = require("bcryptjs");
 const path = require("path");
 const exphbs = require("express-handlebars");
 const methodOverride = require("method-override");
 const upload = require("express-fileupload");
 const flash = require("connect-flash");
 const session = require("express-session");
+const {mongoDbURL} = require('./config/database')
 
 // install handlebars/allow-prototype-access add lean() bw find and then
 
 mongoose
-  .connect("mongodb://127.0.0.1:27017/cms")
+  .connect(mongoDbURL)
   .then((db) => {
     console.log("Mongo Connected");
   })
