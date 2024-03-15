@@ -4,9 +4,11 @@ const Post = require("../../models/Post");
 const Category = require("../../models/Category");
 const { isEmpty, uploadDir } = require("../../helpers/upload-helper");
 const fs = require("fs");
-const path = require("path");
-const flash = require("connect-flash");
-const { error } = require("console");
+const { userAuthenticated } = require("../../helpers/authentication");
+
+// const path = require("path");
+// const flash = require("connect-flash");
+// const { error } = require("console");
 
 router.all("/*", (req, res, next) => {
   res.app.locals.layout = "admin";
@@ -15,7 +17,16 @@ router.all("/*", (req, res, next) => {
 
 router.get("/", (req, res) => {
   Post.find({})
-    .populate('category')
+    .populate("category")
+    .lean()
+    .then((posts) => {
+      res.render("admin/posts", { posts: posts });
+    });
+});
+
+router.get("/my-posts", (req, res) => {
+  Post.find({ user: req.user.id })
+    .populate("category")
     .lean()
     .then((posts) => {
       res.render("admin/posts", { posts: posts });
@@ -57,13 +68,14 @@ router.post("/create", (req, res) => {
       });
     }
 
-    let allowComments = true;
+    let allowComments;
     if (req.body.allowComments) {
       allowComments = true;
     } else {
       allowComments = false;
     }
     const newPost = Post({
+      user: req.user.id,
       title: req.body.title,
       status: req.body.status,
       allowComments: allowComments,
@@ -109,15 +121,21 @@ router.put("/edit/:id", (req, res) => {
         // Handle case where post is not found
         return res.status(404).send("Post not found");
       }
+      if (req.body.allowComments) {
+        allowComments = true;
+      } else {
+        allowComments = false;
+      }
 
       // Update post fields
+      post.user = req.body.user;
       post.title = req.body.title;
       post.status = req.body.status;
-      post.allowComments = req.body.allowComments === "on"; // Convert to boolean
+      post.allowComments = req.body.allowComments; // Convert to boolean
       post.body = req.body.body;
       post.category = req.body.category;
 
-      let filename = "Screenshot (22).png";
+      let filename = "";
 
       if (!req.files || Object.keys(req.files).length === 0) {
         console.log("No files were uploaded.");
@@ -141,22 +159,32 @@ router.put("/edit/:id", (req, res) => {
     .catch((error) => {
       console.error(error);
       req.flash("error_msg", "Failed to update post");
-      res.redirect("/admin/posts");
+      res.redirect("/admin/posts/my-posts");
     });
 });
 
 router.delete("/:id", (req, res) => {
   Post.findByIdAndDelete(req.params.id)
+    .populate("comments")
     .then((post) => {
       if (!post) {
         return res.status(404).send("Post not found");
       }
+
+      // Delete associated comments
+      if (post.comments.length > 0) {
+        post.comments.forEach((comment) => {
+          comment.remove();
+        });
+      }
+
+      // Delete associated file
       fs.unlink(uploadDir + post.file, (err) => {
         if (err) {
           console.log("Error deleting image:", err);
         }
         req.flash("success_msg", "Post was successfully deleted");
-        res.redirect("/admin/posts");
+        res.redirect("/admin/posts/my-posts");
       });
     })
     .catch((err) => {

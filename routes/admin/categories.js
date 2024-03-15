@@ -1,6 +1,9 @@
 const express = require('express');
 const Category = require('../../models/Category');
 const router = express.Router();
+const {userAuthenticated} = require('../../helpers/authentication')
+
+
 
 router.all('/*', (req, re, next) => {
     req.app.locals.layout = 'admin'
