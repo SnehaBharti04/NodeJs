@@ -9,7 +9,10 @@ router.all('/*', (req, re, next) => {
 })
 
 router.get('/', (req, res) => {
-    res.render('admin/index')
+    Post.countDocuments({}).then(postCount => {
+        res.render('admin/index', {postCount: postCount})
+
+    })
 })
 
 
@@ -19,7 +22,8 @@ router.post('/generate-fake-posts', (req, res) => {
             title: faker.lorem.words(2),
             status: 'public',
             allowComments: faker.datatype.boolean(),
-            body: faker.lorem.sentence()
+            body: faker.lorem.sentence(),
+            slug : faker.name.title()
         });
                
         post.save().then(savedPost => {

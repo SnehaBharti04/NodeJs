@@ -25,12 +25,12 @@ mongoose
 
 app.use(express.static(path.join(__dirname, "public")));
 
-const { select, generateDate } = require("./helpers/handlebars-helpers");
+const { select, generateDate, paginate } = require("./helpers/handlebars-helpers");
 
 // set view engine
 app.engine(
   "handlebars",
-  exphbs.engine({ defaultLayout: "home", helpers: { select: select, generateDate: generateDate } })
+  exphbs.engine({ defaultLayout: "home", helpers: { select: select, generateDate: generateDate, paginate: paginate } })
 );
 app.set("view engine", "handlebars");
 

@@ -9,5 +9,10 @@ module.exports = {
 
   generateDate : function(date, format)  {
    return moment(date).format(format)
+  },
+
+
+  paginate: function(options) {
+    console.log(options.hash.current)
   }
 };

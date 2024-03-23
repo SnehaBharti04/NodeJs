@@ -18,6 +18,8 @@ router.get("/", (req, res) => {
     });
 });
 
+
+
 router.post("/", async (req, res) => {
   try {
     const post = await Post.findOne({ _id: req.body.id });
@@ -28,7 +30,7 @@ router.post("/", async (req, res) => {
       });
       post.comments.push(newComment);
       await Promise.all([post.save(), newComment.save()]);
-
+      req.flash('success_msg', 'comment was updated successfully')
       res.redirect(`/post/${post._id}`);
     }
   } catch (error) {
@@ -36,6 +38,9 @@ router.post("/", async (req, res) => {
     res.status(500).send("Internal Server Error");
   }
 });
+
+
+
 
 router.delete("/:id", async (req, res) => {
   try {
@@ -51,6 +56,8 @@ router.delete("/:id", async (req, res) => {
     res.status(500).send("Internal Server Error");
   }
 });
+
+
 
 router.post("/approve-comments", async (req, res) => {
   try {

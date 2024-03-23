@@ -1,52 +1,60 @@
-const mongoose = require('mongoose')
+const mongoose = require("mongoose");
+const URLSlugs = require("mongoose-url-slugs");
 const Schema = mongoose.Schema;
 
-const PostSchema = new Schema({
-
-    user:{
-        type: Schema.Types.ObjectId,
-        ref: 'users'
+const PostSchema = new Schema(
+  {
+    user: {
+      type: Schema.Types.ObjectId,
+      ref: "users",
     },
-     
+
     category: {
-        type: Schema.Types.ObjectId,
-        ref: 'categories'
+      type: Schema.Types.ObjectId,
+      ref: "categories",
     },
-
 
     title: {
-        type: String,
-        required: true,
+      type: String,
+      required: true,
     },
+    
+    slug: {
+        type: String,
+      },
+  
 
     status: {
-        type: String,
-        default: 'public',
+      type: String,
+      default: "public",
     },
 
     allowComments: {
-        type: Boolean,
-        require: true
+      type: Boolean,
+      require: true,
     },
     body: {
-        type: String,
-        required: true,
+      type: String,
+      required: true,
     },
     file: {
-        type: String
+      type: String,
     },
-    date : {
-        type: Date,
-        default: Date.now()
+    date: {
+      type: Date,
+      default: Date.now(),
     },
 
-    comments: [{
+    comments: [
+      {
         type: Schema.Types.ObjectId,
-        ref: 'comments'
-    }],
+        ref: "comments",
+      },
+    ],
+  },
+  { usePushEach: true }
+);
 
-}, {usePushEach : true})
+PostSchema.plugin(URLSlugs("title", { field: "slug" }));
 
-
-
-module.exports = mongoose.model('posts', PostSchema)
+module.exports = mongoose.model("posts", PostSchema);
